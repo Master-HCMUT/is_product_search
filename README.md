@@ -2,6 +2,20 @@
 
 An intelligent product search engine built with FastAPI, Next.js/Vite, Superlinked, and Qdrant. This platform allows natural language semantic search for products.
 
+## Project Report
+
+**Course**: Intelligent Systems (CO5119)
+
+
+**Advisor**: Prof. Dr. Quan Thanh Tho
+
+**Students**:
+- Luong Nguyen Dinh - 2570763
+- Duong Hoang Yen - 2570804
+- Huynh Cong Thien - 2570760
+
+**Location and time**: Ho Chi Minh City, May 2026
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
