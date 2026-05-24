@@ -206,7 +206,7 @@ export async function analyzeSingleFeedback(
   });
   if (!res.ok) throw new Error(`Analysis failed: ${res.statusText}`);
   const data = await res.json();
-  return data.analysis;
+  return normalizeAnalysisText(data.analysis);
 }
 
 export async function analyzeBatchFeedback(
@@ -222,7 +222,42 @@ export async function analyzeBatchFeedback(
     }),
   });
   if (!res.ok) throw new Error(`Batch analysis failed: ${res.statusText}`);
-  return res.json();
+  const data = await res.json();
+  return {
+    ...data,
+    analysis: normalizeAnalysisText(data.analysis),
+  };
+}
+
+function normalizeAnalysisText(value: unknown): string {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) {
+    const text = value
+      .map((part) => {
+        if (typeof part === 'string') return part;
+        if (
+          part &&
+          typeof part === 'object' &&
+          'text' in part &&
+          typeof part.text === 'string'
+        ) {
+          return part.text;
+        }
+        return '';
+      })
+      .filter(Boolean)
+      .join('\n\n');
+    return text || 'No analysis text was returned.';
+  }
+  if (
+    value &&
+    typeof value === 'object' &&
+    'text' in value &&
+    typeof value.text === 'string'
+  ) {
+    return value.text;
+  }
+  return 'No analysis text was returned.';
 }
 
 export async function searchSimilarQueries(

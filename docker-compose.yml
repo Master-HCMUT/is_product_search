@@ -28,7 +28,7 @@ services:
     # Override the command to start superlinked instead of fastapi
     command: ["uv", "run", "python", "-m", "superlinked.server"]
     ports:
-      - "8080-8089:8080"
+      - "8081:8080"
     environment:
       - APP_MODULE_PATH=superlinked_app
     depends_on:
@@ -43,7 +43,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8000-8009:8000"
+      - "8001:8000"
     volumes:
       - ./models:/app/models:ro
     # Use environment variables from .env file in the backend directory
@@ -61,7 +61,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "5173-5179:5173"
+      - "5174:5173"
     environment:
       # Expose API URL to frontend via Vite standard environment variables
       - VITE_API_URL=http://localhost:8000

@@ -9,6 +9,33 @@ from loguru import logger
 from src.settings import settings
 
 
+def _gemini_content_to_text(content) -> str:
+    """Convert Gemini/LangChain structured content into displayable text."""
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, list):
+        text_parts = []
+        for part in content:
+            if isinstance(part, str):
+                text_parts.append(part)
+                continue
+            if not isinstance(part, dict):
+                continue
+            if part.get("type") == "text" and part.get("text"):
+                text_parts.append(str(part["text"]))
+            elif "text" in part and part.get("text"):
+                text_parts.append(str(part["text"]))
+        return "\n\n".join(text_parts).strip() or "No analysis text was returned."
+
+    if isinstance(content, dict):
+        if content.get("text"):
+            return str(content["text"])
+        return "No analysis text was returned."
+
+    return str(content)
+
+
 class FeedbackAnalyzer:
     """Analyzes search feedback using Gemini LLM."""
 
@@ -51,7 +78,7 @@ Provide your analysis in 2-3 paragraphs. Be specific and actionable."""
 
         try:
             response = await self.llm.ainvoke(prompt)
-            return response.content
+            return _gemini_content_to_text(response.content)
         except Exception as e:
             logger.error(f"Single feedback analysis failed: {e}")
             return f"Analysis failed: {str(e)}"
@@ -96,7 +123,7 @@ Format your response as a structured report with headers and bullet points."""
 
         try:
             response = await self.llm.ainvoke(prompt)
-            return response.content
+            return _gemini_content_to_text(response.content)
         except Exception as e:
             logger.error(f"Batch feedback analysis failed: {e}")
             return f"Batch analysis failed: {str(e)}"
