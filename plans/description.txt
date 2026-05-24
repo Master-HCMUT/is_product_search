@@ -1,0 +1,27 @@
+i'd like to create a full-stack app contanining: backend, frontend and infrastructure for my Intelligent System course assignment. 
+
+There are 3 stakeholders using this application:
+- User
+- Shopper
+- Data Scientist
+
+Below is the detail description for each parts:
+
+1. Infrastructure:
+- Vector database and main database: Qdrant
+Optionally, you can use Qdrant as a NoSQL database
+
+2. Backend:
+- Basically, we have ML and Business Logic. ML will be used to do text-image search. But currently, we only support text search. 
+ML solution is developing and we will apply it later. Now, we do text to text search only with Superlinked. 
+
+- For the API, we use FastAPI to build
+
+3. Frontend:
+- Contain 3 pages corresponding with each stakeholders
+- You should only make light or neccessary changes when needed. Do not change it too much
+
+Q&A:
+Q. Why do not we use OTLP as our db rather than only Qdrant?
+A. Because this is the POC for the course, so we keep things simple. This app is created to demo the searching features. We want to demo searching products
+

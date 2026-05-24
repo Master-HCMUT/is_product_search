@@ -1,0 +1,27 @@
+import os
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+DEFAULT_ENV_FILENAME = ".env"
+
+
+class Settings(BaseSettings):
+    text_embedder_name: str = "sentence-transformers/all-MiniLM-L6-v2"
+    chunk_size: int = 500
+    path_dataset: str = "data/products.jsonl"
+    qdrant_url: str = "http://qdrant:6333"
+    qdrant_api_key: str = ""
+
+    model_config = SettingsConfigDict(
+        env_file=DEFAULT_ENV_FILENAME, env_file_encoding="utf-8"
+    )
+
+
+def get_env_file_path() -> str:
+    dirname = os.path.dirname(__file__)
+    rel_path = os.path.join(dirname, DEFAULT_ENV_FILENAME)
+    abs_path = os.path.abspath(rel_path)
+    return abs_path
+
+
+settings = Settings(_env_file=get_env_file_path())

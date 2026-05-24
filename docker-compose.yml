@@ -1,0 +1,69 @@
+services:
+  # ==========================================================================
+  # 1. Qdrant — Vector Database
+  # ==========================================================================
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333-6339:6333"
+      - "6340-6349:6334"
+    volumes:
+      # Bind-mounted so indexed data survives `docker compose down -v`.
+      - ./.qdrant/storage:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c ':> /dev/tcp/0.0.0.0/6333' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================================================
+  # 2. Superlinked Server — Vector search bridge
+  # ==========================================================================
+  superlinked:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    # Override the command to start superlinked instead of fastapi
+    command: ["uv", "run", "python", "-m", "superlinked.server"]
+    ports:
+      - "8080-8089:8080"
+    environment:
+      - APP_MODULE_PATH=superlinked_app
+    depends_on:
+      qdrant:
+        condition: service_healthy
+
+  # ==========================================================================
+  # 3. FastAPI Backend — Core APIs
+  # ==========================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000-8009:8000"
+    volumes:
+      - ./models:/app/models:ro
+    # Use environment variables from .env file in the backend directory
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - superlinked
+
+  # ==========================================================================
+  # 4. Next.js / Vite Frontend — Web Interface
+  # ==========================================================================
+  frontend:
+    container_name: frontend-web
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173-5179:5173"
+    environment:
+      # Expose API URL to frontend via Vite standard environment variables
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
